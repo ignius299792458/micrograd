@@ -12,7 +12,8 @@ dependencies = [
     "torch (>=2.13.0,<3.0.0)"
 ]
 
-
+[tool.poetry]
+packages = [{include = "micrograd"}]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
