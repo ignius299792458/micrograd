@@ -1,49 +1,50 @@
 class ScalarValue:
-    """Store single scalar value and its gradient"""
+    """stores a single scalar value and its gradient"""
 
     def __init__(self, data, _children=(), _op=""):
         self.data = data
         self.grad = 0
-
         # internal variables used for autograd graph construction
         self._backward = lambda: None
         self._prev = set(_children)
         self._op = _op  # the op that produced this node, for graphviz / debugging / etc
 
     def __add__(self, other):
-        other = other if isinstance(other, ScalarValue) else ScalarValue(data=other)
+        other = other if isinstance(other, ScalarValue) else ScalarValue(other)
         out = ScalarValue(self.data + other.data, (self, other), "+")
 
         def _backward():
             self.grad += out.grad
             other.grad += out.grad
 
-        self._backward = _backward
+        out._backward = _backward
         return out
 
     def __mul__(self, other):
-        other = other if isinstance(other, ScalarValue) else ScalarValue(data=other)
+        other = other if isinstance(other, ScalarValue) else ScalarValue(other)
         out = ScalarValue(self.data * other.data, (self, other), "*")
 
         def _backward():
-            self.grad += other.grad * out.grad
-            other.grad += self.grad * out.grad
+            self.grad += other.data * out.grad
+            other.grad += self.data * out.grad
 
         out._backward = _backward
         return out
 
     def __pow__(self, other):
-        assert isinstance(other, (int, float), "Only support int or float")
+        assert isinstance(
+            other, (int, float)
+        ), "only supporting int/float powers for now"
         out = ScalarValue(self.data**other, (self,), f"**{other}")
 
         def _backward():
-            self.grad += other * self.data ** (other - 1) * out.grad
+            self.grad += (other * self.data ** (other - 1)) * out.grad
 
         out._backward = _backward
         return out
 
     def relu(self):
-        out = ScalarValue(0 if self.data < 0 else self.data, (self,), "ReLu")
+        out = ScalarValue(0 if self.data < 0 else self.data, (self,), "ReLU")
 
         def _backward():
             self.grad += (out.data > 0) * out.grad
@@ -71,7 +72,7 @@ class ScalarValue:
         for v in reversed(topo):
             v._backward()
 
-    def __neg__(self):
+    def __neg__(self):  # -self
         return self * -1
 
     def __radd__(self, other):  # other + self
@@ -93,4 +94,4 @@ class ScalarValue:
         return other * self**-1
 
     def __repr__(self):
-        return f"Value(data={self.data}, grad={self.grad})"
+        return f"ScalarValue(data={self.data}, grad={self.grad})"
