@@ -46,6 +46,27 @@ class ScalarValue:
         out._backward = _backward
         return out
 
+    def exp(self):
+        out = ScalarValue(math.exp(self.data), (self,), "exp")
+
+        def _backward():
+            self.grad += out.data * out.grad
+
+        out._backward = _backward
+        return out
+
+    def log(self):
+        if self.data <= 0:
+            raise ValueError(f"log() requires +ve value, received {self.data}")
+
+        out = ScalarValue(math.log(self.data), (self,), "log")
+
+        def _backward():
+            self.grad += (1.0 / self.data) * out.grad
+
+        out._backward = _backward
+        return out
+
     def relu(self):
         out = ScalarValue(0 if self.data < 0 else self.data, (self,), "ReLU")
 
