@@ -4,6 +4,7 @@ from micrograd.value import ScalarValue
 
 
 class Module:
+
     def zero_grad(self):
         for p in self.parameters():
             p.grad = 0
@@ -14,7 +15,7 @@ class Module:
 
 class Neuron(Module):
 
-    def __int__(self, nin, nonlin=True):
+    def __init__(self, nin, nonlin=True):
         self.w = [ScalarValue(random.uniform(-1, 1)) for _ in range(nin)]
         self.b = ScalarValue(0)
         self.nonlin = nonlin
@@ -47,10 +48,12 @@ class Layer(Module):
 
 
 class MLP(Module):
+
     def __init__(self, nin, nouts):
         sz = [nin] + nouts
         self.layers = [
-            Layer(sz[i], sz[i + 1], nonlin=i != len(nouts) - 1) for i in range(nouts)
+            Layer(sz[i], sz[i + 1], nonlin=i != len(nouts) - 1)
+            for i in range(len(nouts))
         ]
 
     def __call__(self, x):
