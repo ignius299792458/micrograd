@@ -10,7 +10,7 @@ To test the framework, a 64–32–10 multilayer perceptron was trained to recog
 The whole project is setup using poetry : read the pyproject.toml for required information.
 
 ```bash
-# make poetry is installed in your device and then run
+# make sure poetry is installed in your device and then run
  poetry lock && poetry install
 ```
 
